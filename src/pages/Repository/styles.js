@@ -120,3 +120,11 @@ export const Label = styled.span`
   margin-left: 10px;
   white-space: nowrap;
 `;
+
+export const IssueFilter = styled.select`
+  flex: 1;
+  border: 1px solid #eee;
+  padding: 10px 15px;
+  border-radius: 4px;
+  font-size: 16px;
+`;

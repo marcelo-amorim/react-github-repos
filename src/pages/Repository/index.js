@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 import api from '../../services/api';
 
 import Container from '../../components/Container';
-import { Loading, Owner, IssueList, Label } from './styles';
+import { Loading, Owner, IssueList, Label, IssueFilter } from './styles';
 
 export default class Repository extends Component {
   static propTypes = {
@@ -21,10 +21,17 @@ export default class Repository extends Component {
     repository: {},
     issues: [],
     loading: true,
+    currentState: 'open',
+    issueStates: [
+      { name: 'Abertas', state: 'open' },
+      { name: 'Fechadas', state: 'closed' },
+      { name: 'Todas', state: 'all' },
+    ],
   };
 
   async componentDidMount() {
     const { match } = this.props;
+    const { currentState } = this.state;
 
     const repoName = decodeURIComponent(match.params.repository);
 
@@ -32,13 +39,11 @@ export default class Repository extends Component {
       api.get(`/repos/${repoName}`),
       api.get(`/repos/${repoName}/issues`, {
         params: {
-          state: 'open',
+          state: currentState,
           per_page: 5,
         },
       }),
     ]);
-
-    console.log(issues.data);
 
     this.setState({
       repository: repository.data,
@@ -47,8 +52,28 @@ export default class Repository extends Component {
     });
   }
 
+  handleIssueFilter = async (e) => {
+    const issueState = e.target.value;
+    const { repository } = this.state;
+
+    this.setState({ loading: true });
+
+    const issues = await api.get(`/repos/${repository.full_name}/issues`, {
+      params: {
+        state: issueState,
+        per_page: 5,
+      },
+    });
+
+    this.setState({
+      loading: false,
+      issues: issues.data,
+      currentState: issueState,
+    });
+  };
+
   render() {
-    const { repository, issues, loading } = this.state;
+    const { repository, issues, loading, issueStates } = this.state;
 
     if (loading) {
       return (
@@ -66,6 +91,15 @@ export default class Repository extends Component {
           <h1>{repository.name}</h1>
           <p>{repository.description}</p>
         </Owner>
+
+        <p>Exibir issues: </p>
+        <IssueFilter onChange={this.handleIssueFilter}>
+          {issueStates.map((issueState) => (
+            <option key={issueState.state} value={issueState.state}>
+              {issueState.name}
+            </option>
+          ))}
+        </IssueFilter>
 
         <IssueList>
           {issues.map((issue) => (
