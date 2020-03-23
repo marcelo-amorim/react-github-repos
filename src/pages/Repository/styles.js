@@ -118,4 +118,5 @@ export const Label = styled.span`
   height: 20px;
   padding: 3px 4px;
   margin-left: 10px;
+  white-space: nowrap;
 `;
