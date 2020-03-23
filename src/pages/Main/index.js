@@ -5,19 +5,20 @@ import { Link } from 'react-router-dom';
 import api from '../../services/api';
 
 import Container from '../../components/Container';
-import { Form, SubmitButton, List } from './styles';
+import { Form, SubmitButton, List, Alert } from './styles';
 
 export default class Main extends Component {
   state = {
     newRepo: '',
     repositories: [],
     loading: false,
+    error: '',
   };
 
   // Carregar os dados do localStorage
   componentDidMount() {
+    // localStorage.setItem('repositories', JSON.stringify([]));
     const repositories = localStorage.getItem('repositories');
-
     if (repositories) {
       this.setState({ repositories: JSON.parse(repositories) });
     }
@@ -30,22 +31,61 @@ export default class Main extends Component {
     }
   }
 
+  checkRepo = (repoName) => {
+    const { repositories } = this.state;
+    let found = false;
+    repositories.forEach((repository) => {
+      if (repository.name === repoName) {
+        found = true;
+      }
+    });
+
+    return found;
+  };
+
   handleSubmit = async (e) => {
     e.preventDefault();
+    try {
+      this.setState({ loading: true });
 
-    this.setState({ loading: true });
+      const { newRepo, repositories } = this.state;
 
-    const { newRepo, repositories } = this.state;
-    const response = await api.get(`/repos/${newRepo}`);
-    this.setState({ loading: false });
-    const data = {
-      name: response.data.full_name,
-    };
+      if (newRepo.length === 0) {
+        throw new Error('Insira uma URL válida.');
+      }
 
-    this.setState({
-      repositories: [...repositories, data],
-      newRepo: '',
-    });
+      if (this.checkRepo(newRepo)) {
+        throw new Error('Repositório duplicado.');
+      }
+
+      const response = await api.get(`/repos/${newRepo}`).catch((err) => {
+        const { status } = err.response;
+        switch (status) {
+          case 403:
+            throw new Error('Limite de requisições atingido.');
+          case 404:
+            throw new Error('Repositório não encontrado.');
+          default:
+            throw new Error(
+              'Um erro ocorreu, tente novamente em alguns instantes.'
+            );
+        }
+      });
+
+      this.setState({ loading: false });
+      this.setState({ error: '' });
+
+      const data = {
+        name: response.data.full_name,
+      };
+
+      this.setState({
+        repositories: [...repositories, data],
+        newRepo: '',
+      });
+    } catch (err) {
+      this.setState({ error: err.message, loading: false });
+    }
   };
 
   handleInputChange = async (e) => {
@@ -53,7 +93,7 @@ export default class Main extends Component {
   };
 
   render() {
-    const { newRepo, loading, repositories } = this.state;
+    const { newRepo, loading, repositories, error } = this.state;
 
     return (
       <Container>
@@ -68,8 +108,8 @@ export default class Main extends Component {
             placeholder="Adicionar repositório"
             value={newRepo}
             onChange={this.handleInputChange}
+            className={error.length ? 'has-error' : ''}
           />
-
           <SubmitButton loading={loading ? 1 : 0}>
             {loading ? (
               <FaSpinner color="#FFF" size={14} />
@@ -78,6 +118,8 @@ export default class Main extends Component {
             )}
           </SubmitButton>
         </Form>
+
+        {error && <Alert>{error}</Alert>}
 
         <List>
           {repositories.map((repository) => (

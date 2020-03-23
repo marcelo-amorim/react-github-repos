@@ -11,6 +11,10 @@ export const Form = styled.form`
     padding: 10px 15px;
     border-radius: 4px;
     font-size: 16px;
+
+    &.has-error {
+      border: 1px solid #f44336;
+    }
   }
 `;
 
@@ -72,4 +76,16 @@ export const List = styled.ul`
       text-decoration: none;
     }
   }
+`;
+
+export const Alert = styled.div`
+  padding: 15px;
+  background-color: #f44336;
+  color: #fff;
+  margin: 15px 0;
+
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
 `;
