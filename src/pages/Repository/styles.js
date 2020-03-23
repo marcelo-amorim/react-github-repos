@@ -118,7 +118,7 @@ export const Label = styled.span`
   height: 20px;
   padding: 3px 4px;
   margin-left: 10px;
-  white-space: nowrap;
+  /* white-space: nowrap; */
 `;
 
 export const IssueFilter = styled.select`
@@ -127,4 +127,31 @@ export const IssueFilter = styled.select`
   padding: 10px 15px;
   border-radius: 4px;
   font-size: 16px;
+`;
+
+export const PageNav = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  margin-top: 30px;
+
+  button {
+    background: #2c80ff;
+    color: #fff;
+    border: 1px solid #2c80ff;
+    padding: 10px 15px;
+    border-radius: 4px;
+    font-size: 16px;
+
+    & + button {
+      margin-left: 5px;
+    }
+
+    &[disabled] {
+      background: #eee;
+      color: #333;
+      border: 1px solid #eee;
+      cursor: not-allowed;
+    }
+  }
 `;

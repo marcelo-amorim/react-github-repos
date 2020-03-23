@@ -6,7 +6,14 @@ import { Link } from 'react-router-dom';
 import api from '../../services/api';
 
 import Container from '../../components/Container';
-import { Loading, Owner, IssueList, Label, IssueFilter } from './styles';
+import {
+  Loading,
+  Owner,
+  IssueList,
+  Label,
+  IssueFilter,
+  PageNav,
+} from './styles';
 
 export default class Repository extends Component {
   static propTypes = {
@@ -22,6 +29,7 @@ export default class Repository extends Component {
     issues: [],
     loading: true,
     currentState: 'open',
+    currentPage: 1,
     issueStates: [
       { name: 'Abertas', state: 'open' },
       { name: 'Fechadas', state: 'closed' },
@@ -31,7 +39,7 @@ export default class Repository extends Component {
 
   async componentDidMount() {
     const { match } = this.props;
-    const { currentState } = this.state;
+    const { currentState, currentPage } = this.state;
 
     const repoName = decodeURIComponent(match.params.repository);
 
@@ -41,6 +49,7 @@ export default class Repository extends Component {
         params: {
           state: currentState,
           per_page: 5,
+          page: currentPage,
         },
       }),
     ]);
@@ -55,13 +64,12 @@ export default class Repository extends Component {
   handleIssueFilter = async (e) => {
     const issueState = e.target.value;
     const { repository } = this.state;
-
     this.setState({ loading: true });
-
     const issues = await api.get(`/repos/${repository.full_name}/issues`, {
       params: {
         state: issueState,
         per_page: 5,
+        currentPage: 1,
       },
     });
 
@@ -69,6 +77,43 @@ export default class Repository extends Component {
       loading: false,
       issues: issues.data,
       currentState: issueState,
+      currentPage: 1,
+    });
+  };
+
+  togglePrev = async () => {
+    const { currentPage, currentState, repository } = this.state;
+    if (currentPage > 1) {
+      const newCurrentPage = currentPage - 1;
+      this.setState({ currentPage: newCurrentPage, loading: true });
+      const issues = await api.get(`/repos/${repository.full_name}/issues`, {
+        params: {
+          state: currentState,
+          per_page: 5,
+          page: newCurrentPage,
+        },
+      });
+      this.setState({
+        issues: issues.data,
+        loading: false,
+      });
+    }
+  };
+
+  toggleNext = async () => {
+    const { currentPage, currentState, repository } = this.state;
+    const newCurrentPage = currentPage + 1;
+    this.setState({ loading: true, currentPage: newCurrentPage });
+    const issues = await api.get(`/repos/${repository.full_name}/issues`, {
+      params: {
+        state: currentState,
+        per_page: 5,
+        page: newCurrentPage,
+      },
+    });
+    this.setState({
+      issues: issues.data,
+      loading: false,
     });
   };
 
@@ -79,6 +124,7 @@ export default class Repository extends Component {
       loading,
       issueStates,
       currentState,
+      currentPage,
     } = this.state;
 
     if (loading) {
@@ -128,6 +174,19 @@ export default class Repository extends Component {
             </li>
           ))}
         </IssueList>
+
+        <PageNav>
+          <button
+            type="button"
+            disabled={currentPage === 1 ? 1 : 0}
+            onClick={this.togglePrev}
+          >
+            &laquo; Anterior
+          </button>
+          <button type="button" onClick={this.toggleNext}>
+            Próximo &raquo;
+          </button>
+        </PageNav>
       </Container>
     );
   }
