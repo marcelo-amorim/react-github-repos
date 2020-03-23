@@ -73,7 +73,13 @@ export default class Repository extends Component {
   };
 
   render() {
-    const { repository, issues, loading, issueStates } = this.state;
+    const {
+      repository,
+      issues,
+      loading,
+      issueStates,
+      currentState,
+    } = this.state;
 
     if (loading) {
       return (
@@ -93,7 +99,10 @@ export default class Repository extends Component {
         </Owner>
 
         <p>Exibir issues: </p>
-        <IssueFilter onChange={this.handleIssueFilter}>
+        <IssueFilter
+          defaultValue={currentState}
+          onChange={this.handleIssueFilter}
+        >
           {issueStates.map((issueState) => (
             <option key={issueState.state} value={issueState.state}>
               {issueState.name}
