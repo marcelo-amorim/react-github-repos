@@ -1,5 +1,9 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+## Github Repos Listing
+
+:exclamation: This simple react app has no purposes. I've just uploaded it here to backup my studies, but feel free to clone and test it by yourself. :stuck_out_tongue_winking_eye:
+
 ## Available Scripts
 
 In the project directory, you can run:
