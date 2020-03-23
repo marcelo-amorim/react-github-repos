@@ -6,7 +6,7 @@ import { Link } from 'react-router-dom';
 import api from '../../services/api';
 
 import Container from '../../components/Container';
-import { Loading, Owner, IssueList } from './styles';
+import { Loading, Owner, IssueList, Label } from './styles';
 
 export default class Repository extends Component {
   static propTypes = {
@@ -37,6 +37,8 @@ export default class Repository extends Component {
         },
       }),
     ]);
+
+    console.log(issues.data);
 
     this.setState({
       repository: repository.data,
@@ -73,7 +75,9 @@ export default class Repository extends Component {
                 <strong>
                   <a href={issue.html_url}>{issue.title}</a>
                   {issue.labels.map((label) => (
-                    <span key={String(label.id)}>{label.name}</span>
+                    <Label key={String(label.id)} color={`#${label.color}`}>
+                      {label.name}
+                    </Label>
                   ))}
                 </strong>
                 <p>{issue.user.login}</p>

@@ -58,7 +58,9 @@ export const Owner = styled.header`
   }
 `;
 
-export const IssueList = styled.ul`
+export const IssueList = styled.ul.attrs((props) => ({
+  color: props.color,
+}))`
   padding-top: 30px;
   margin-top: 30px;
   border-top: 1px solid #eee;
@@ -97,17 +99,6 @@ export const IssueList = styled.ul`
       a:hover {
         color: #2c80ff;
       }
-
-      span {
-        background: #eee;
-        color: #333;
-        border-radius: 2px;
-        font-size: 12px;
-        font-weight: 600;
-        height: 20px;
-        padding: 3px 4px;
-        margin-left: 10px;
-      }
     }
 
     p {
@@ -116,4 +107,15 @@ export const IssueList = styled.ul`
       color: #999;
     }
   }
+`;
+
+export const Label = styled.span`
+  background: ${(props) => (props.color ? props.color : '#eee')};
+  color: #333;
+  border-radius: 2px;
+  font-size: 12px;
+  font-weight: 600;
+  height: 20px;
+  padding: 3px 4px;
+  margin-left: 10px;
 `;
